@@ -1,0 +1,8 @@
+- [x] Update styles.css with general animations (button press, input focus, dropdown slide, page fade)
+- [x] Update login.html: add submit animation and fade before redirect
+- [x] Update add-update-profile.html: animate form submit, list item fade in, redirect fade
+- [x] Update customize-clothes.html: animate form submit, list item fade in
+- [x] Update index.html: add page fade in
+- [x] Create animations.json config file
+- [x] Update logout.html: add fade out before redirect
+- [ ] Test animations by opening pages in browser

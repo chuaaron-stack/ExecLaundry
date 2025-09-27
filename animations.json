@@ -1,0 +1,45 @@
+{
+  "buttonPress": {
+    "duration": 100,
+    "easing": "ease",
+    "scale": 0.95
+  },
+  "inputFocus": {
+    "duration": 200,
+    "easing": "ease",
+    "spread": "0 0 8px",
+    "color": "rgba(76, 175, 80, 0.5)"
+  },
+  "dropdownSlide": {
+    "duration": 300,
+    "easing": "ease",
+    "from": {
+      "opacity": 0,
+      "translateY": "-10px"
+    },
+    "to": {
+      "opacity": 1,
+      "translateY": "0px"
+    }
+  },
+  "pageFade": {
+    "duration": 500,
+    "easing": "ease-out",
+    "to": 0
+  },
+  "formSubmitLoading": {
+    "duration": 1000
+  },
+  "listItemFadeIn": {
+    "duration": 300,
+    "easing": "ease-out",
+    "from": {
+      "opacity": 0,
+      "translateY": "20px"
+    },
+    "to": {
+      "opacity": 1,
+      "translateY": "0px"
+    }
+  }
+}

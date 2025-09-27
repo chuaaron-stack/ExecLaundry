@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Generate Reports</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Generate Reports</h1>
+      <div class="header-actions">
+        <a href="index.html" class="home-button">Home</a>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div class="left-middle-paragraph">
+      <p>
+        Generate detailed reports of your laundry usage, spending, and service history. Use the options below to customize your report.
+      </p>
+      <canvas id="usageChart" width="400" height="220" style="margin-top:28px;background:#232a34;border-radius:8px;"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      const ctx = document.getElementById('usageChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+          datasets: [{
+            label: 'Laundry Orders',
+            data: [8, 12, 9, 14],
+            backgroundColor: '#4caf50',
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { labels: { color: '#e0e6ed' } }
+          },
+          scales: {
+            x: { ticks: { color: '#e0e6ed' } },
+            y: { ticks: { color: '#e0e6ed' } }
+          }
+        }
+      });
+    </script>
+  </main>
+  <footer>
+    &copy; 2025 Company Name. All rights reserved.
+  </footer>
+</body>
+</html>

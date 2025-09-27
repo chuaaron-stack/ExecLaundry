@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Past Services</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .archive-notice {
+      background: rgba(45, 62, 80, 0.8);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      color: #e0e6ed;
+      border-left: 4px solid #4caf50;
+    }
+
+    .archive-notice a {
+      color: #4caf50;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .archive-notice a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Past Services</h1>
+      <div class="header-actions">
+        <a href="index.html" class="home-button">Home</a>
+        <a href="archive.html" class="home-button">View Archive</a>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div class="left-middle-paragraph">
+      <div class="archive-notice">
+        <h4>📦 Complete Service History</h4>
+        <p>For orders older than 1 year, please visit our <a href="archive.html">Service Archive</a> page where all historical data is preserved and searchable.</p>
+      </div>
+      <p>
+        Review your past laundry and dry cleaning services here. Track your service history and details for your records.
+      </p>
+      <table class="services-table" style="width:100%;margin-top:24px;background:#232a34;color:#e0e6ed;border-radius:8px;overflow:hidden;">
+        <thead style="background:#2d3e50;">
+          <tr>
+            <th>Date</th>
+            <th>Service</th>
+            <th>Status</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="service-row" data-service="wash-fold">
+            <td>2025-04-01</td>
+            <td>Wash & Fold</td>
+            <td>Completed</td>
+            <td>P150.00</td>
+          </tr>
+          <tr class="service-row" data-service="dry-cleaning">
+            <td>2025-03-28</td>
+            <td>Dry Cleaning</td>
+            <td>Completed</td>
+            <td>P220.00</td>
+          </tr>
+          <tr class="service-row" data-service="ironing">
+            <td>2025-03-20</td>
+            <td>Ironing</td>
+            <td>Completed</td>
+            <td>P100.00</td>
+          </tr>
+        </tbody>
+      </table>
+      <div id="service-preview" class="preview" style="opacity:0;margin-top:20px;padding:16px;background:#2d3e50;border-radius:8px;">
+        <h4 id="preview-title"></h4>
+        <p id="preview-items"></p>
+        <p id="preview-pickup"></p>
+        <p id="preview-delivery"></p>
+      </div>
+    </div>
+  </main>
+  <footer>
+    &copy; 2025 Company Name. All rights reserved.
+  </footer>
+  <script>
+    const serviceData = {
+      'wash-fold': {
+        title: 'Wash & Fold Service',
+        items: 'Items: 5 shirts, 3 pants',
+        pickup: 'Pickup: 2025-03-30',
+        delivery: 'Delivery: 2025-04-01'
+      },
+      'dry-cleaning': {
+        title: 'Dry Cleaning Service',
+        items: 'Items: 2 suits, 1 dress',
+        pickup: 'Pickup: 2025-03-26',
+        delivery: 'Delivery: 2025-03-28'
+      },
+      'ironing': {
+        title: 'Ironing Service',
+        items: 'Items: 4 shirts',
+        pickup: 'Pickup: 2025-03-19',
+        delivery: 'Delivery: 2025-03-20'
+      }
+    };
+
+    const rows = document.querySelectorAll('.service-row');
+    const preview = document.getElementById('service-preview');
+    const titleEl = document.getElementById('preview-title');
+    const itemsEl = document.getElementById('preview-items');
+    const pickupEl = document.getElementById('preview-pickup');
+    const deliveryEl = document.getElementById('preview-delivery');
+
+    rows.forEach(row => {
+      row.addEventListener('mouseenter', () => {
+        const service = row.dataset.service;
+        const data = serviceData[service];
+        titleEl.textContent = data.title;
+        itemsEl.textContent = data.items;
+        pickupEl.textContent = data.pickup;
+        deliveryEl.textContent = data.delivery;
+        preview.style.display = 'block';
+      });
+      row.addEventListener('mouseleave', () => {
+        preview.style.display = 'none';
+      });
+    });
+  </script>
+</body>
+</html>

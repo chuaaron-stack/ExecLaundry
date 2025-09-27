@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Dashboard</h1>
+      <div class="header-actions">
+        <a href="index.html" class="home-button">Home</a>
+      </div>
+    </div>
+  </header>
+  <main style="display: flex; flex-wrap: wrap; gap: 24px; padding: 32px; background: transparent; min-height: calc(100vh - 120px);">
+    <div class="left-middle-paragraph" style="flex: 1 1 45%; padding: 32px 28px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.18); color: #e0e6ed; text-align: left; background: rgba(35, 42, 52, 0.85);">
+      <p>
+        Welcome to your dashboard! Here you can access all features of Executive Laundry Verdant, manage your profile, view past services, and generate reports.
+      </p>
+    </div>
+    <div class="left-middle-paragraph" style="flex: 1 1 45%; margin-top: 0; background: rgba(35, 42, 52, 0.85);">
+      <h3>Add Customer Account</h3>
+      <form id="addAccountForm" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="accountName" placeholder="Name" required style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
+        <input type="email" id="accountEmail" placeholder="Email" required style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
+        <input type="text" id="accountPhone" placeholder="Phone" required style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
+        <button type="submit" class="login-btn" style="padding:8px 18px;">Add Account</button>
+      </form>
+      <ul id="accountsList" style="margin-top:18px;list-style:none;padding:0;"></ul>
+    </div>
+    <div class="left-middle-paragraph" style="flex: 1 1 100%; margin-top: 0; background: rgba(35, 42, 52, 0.85);">
+      <h3>Add Clothes</h3>
+      <form id="addClothesForm" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="clothingItem" placeholder="Clothing Item" required style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
+        <select id="colorSelect" required style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;">
+          <option value="">Select Color</option>
+          <option value="White">White</option>
+          <option value="Black">Black</option>
+          <option value="Blue">Blue</option>
+          <option value="Red">Red</option>
+          <option value="Green">Green</option>
+          <option value="Yellow">Yellow</option>
+        </select>
+        <input type="number" id="quantity" min="1" placeholder="Quantity" required style="width:90px;padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
+        <button type="submit" class="login-btn" style="padding:8px 18px;">Add</button>
+      </form>
+      <ul id="clothesList" style="margin-top:18px;list-style:none;padding:0;"></ul>
+    </div>
+      <script>
+      const animationConfig = {
+        buttonPress: { duration: 100, easing: 'ease', scale: 0.95 },
+        inputFocus: { duration: 200, easing: 'ease', spread: '0 0 8px', color: 'rgba(76, 175, 80, 0.5)' },
+        dropdownSlide: { duration: 300, easing: 'ease', from: { opacity: 0, translateY: '-10px' }, to: { opacity: 1, translateY: '0px' } },
+        pageFade: { duration: 500, easing: 'ease-out', to: 0 },
+        formSubmitLoading: { duration: 1000 },
+        listItemFadeIn: { duration: 300, easing: 'ease-out', from: { opacity: 0, translateY: '20px' }, to: { opacity: 1, translateY: '0px' } }
+      };
+
+      function animateButtonPress(button, config) {
+        button.style.transition = `transform ${config.duration}ms ${config.easing}`;
+        button.style.transform = `scale(${config.scale})`;
+        setTimeout(() => {
+          button.style.transform = 'scale(1)';
+        }, config.duration);
+      }
+
+      function animateListItemFadeIn(item, config) {
+        item.style.opacity = config.from.opacity;
+        item.style.transform = `translateY(${config.from.translateY})`;
+        item.style.transition = `opacity ${config.duration}ms ${config.easing}, transform ${config.duration}ms ${config.easing}`;
+        requestAnimationFrame(() => {
+          item.style.opacity = config.to.opacity;
+          item.style.transform = `translateY(${config.to.translateY})`;
+        });
+      }
+
+      function animatePageFade(config) {
+        document.body.style.transition = `opacity ${config.duration}ms ${config.easing}`;
+        document.body.style.opacity = config.to;
+      }
+
+      function addLoadingSpinner(button, config) {
+        button.disabled = true;
+        button.textContent = 'Loading...';
+        button.classList.add('loading');
+      }
+
+      function animateInputFocus(input, config) {
+        input.style.transition = `box-shadow ${config.duration}ms ${config.easing}`;
+        input.style.boxShadow = `${config.spread} ${config.color}`;
+      }
+
+      function removeInputFocus(input) {
+        input.style.boxShadow = 'none';
+      }
+
+      const addClothesForm = document.getElementById('addClothesForm');
+      const clothesList = document.getElementById('clothesList');
+      addClothesForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const item = document.getElementById('clothingItem').value;
+        const color = document.getElementById('colorSelect').value;
+        const quantity = document.getElementById('quantity').value;
+        if(item && color && quantity) {
+          const li = document.createElement('li');
+          li.textContent = `${item} - ${color} - Qty: ${quantity}`;
+          li.style.padding = '6px 0';
+          animateListItemFadeIn(li, animationConfig.listItemFadeIn);
+          clothesList.appendChild(li);
+          addClothesForm.reset();
+        }
+      });
+
+      const addAccountForm = document.getElementById('addAccountForm');
+      const accountsList = document.getElementById('accountsList');
+      const addAccountBtn = addAccountForm.querySelector('button[type="submit"]');
+      addAccountForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('accountName').value;
+        const email = document.getElementById('accountEmail').value;
+        const phone = document.getElementById('accountPhone').value;
+        if(name && email && phone) {
+          animateButtonPress(addAccountBtn, animationConfig.buttonPress);
+          addLoadingSpinner(addAccountBtn, animationConfig.formSubmitLoading);
+          const li = document.createElement('li');
+          li.textContent = `${name} - ${email} - ${phone}`;
+          li.style.padding = '6px 0';
+          animateListItemFadeIn(li, animationConfig.listItemFadeIn);
+          accountsList.appendChild(li);
+          addAccountForm.reset();
+          setTimeout(() => {
+            animatePageFade(animationConfig.pageFade);
+            setTimeout(() => window.location.href = 'customize-clothes.html', animationConfig.pageFade.duration);
+          }, animationConfig.formSubmitLoading.duration);
+        }
+      });
+
+      const inputs = document.querySelectorAll('input, select');
+      inputs.forEach(input => {
+        input.addEventListener('focus', () => animateInputFocus(input, animationConfig.inputFocus));
+        input.addEventListener('blur', () => removeInputFocus(input));
+      });
+    </script>
+    <!-- Optional content here -->
+  </main>
+  <footer>
+    &copy; 2025 Company Name. All rights reserved.
+  </footer>
+</body>
+</html>

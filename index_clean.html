@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - Executive Laundry Verdant</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    main {
+      max-height: 90vh;
+      overflow-y: scroll;
+      padding: 20px;
+      display: block;
+      background: transparent;
+      min-height: calc(100vh - 120px);
+    }
+    .dashboard-section {
+      background: rgba(35, 42, 52, 0.85);
+      padding: 32px 28px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+      color: #e0e6ed;
+      text-align: left;
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: 40px;
+    }
+    .dashboard-section h2, .dashboard-section h3 {
+      margin-top: 0;
+    }
+    .dashboard-section:hover {
+      background: rgba(76, 175, 80, 0.85);
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Dashboard</h1>
+      <div class="header-actions">
+        <a href="logout.html" class="home-button">Log Out</a>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section class="dashboard-section">
+      <h2><a href="add-update-profile.html" style="color:#4caf50; text-decoration:none;">Welcome to your dashboard</a></h2>
+      <p class="preview-text" data-fulltext="Access all features of Executive Laundry Verdant, manage your profile, view past services, and generate reports. Our premium laundry service ensures your clothes are cleaned with care using eco-friendly detergents and advanced equipment.">Access all features of Executive Laundry Verdant, manage your profile, view past services, and generate reports.</p>
+    </section>
+    <section class="dashboard-section">
+      <h3><a href="add-update-profile.html" style="color:#4caf50; text-decoration:none;">Profile</a></h3>
+      <p class="preview-text" data-fulltext="Manage your profile information here. Update personal details, change password, set delivery preferences, and view account history.">Manage your profile information here.</p>
+    </section>
+    <section class="dashboard-section">
+      <h3><a href="past-services.html" style="color:#4caf50; text-decoration:none;">Past Services</a></h3>
+      <p class="preview-text" data-fulltext="View your past laundry services including Wash & Fold, Dry Cleaning, and Ironing.">View your past laundry services.</p>
+    </section>
+    <section class="dashboard-section">
+      <h3><a href="generate-reports.html" style="color:#4caf50; text-decoration:none;">Generate Reports</a></h3>
+      <p class="preview-text" data-fulltext="Create and download reports such as monthly usage report, spending summary, service history, and environmental impact.">Create and download reports.</p>
+    </section>
+  </main>
+  <footer>
+    &copy; 2025 Company Name. All rights reserved.
+  </footer>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelector('main').classList.add('fade-in');
+
+      const sections = document.querySelectorAll('.dashboard-section');
+      sections.forEach(section => {
+        const p = section.querySelector('.preview-text');
+        if (!p) return;
+        const originalText = p.textContent;
+        const fullText = p.dataset.fulltext;
+
+        section.addEventListener('mouseenter', () => {
+          p.textContent = fullText;
+        });
+        section.addEventListener('mouseleave', () => {
+          p.textContent = originalText;
+        });
+      });
+    });
+  </script>
+</body>
+</html>

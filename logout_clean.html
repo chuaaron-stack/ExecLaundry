@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Log Out</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Log Out</h1>
+      <div class="header-actions">
+        <a href="index.html" class="home-button">Home</a>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div class="left-middle-paragraph">
+      <p>
+        You have been logged out. Thank you for using Executive Laundry Verdant. For your security, please close your browser if you are on a public computer.
+      </p>
+    </div>
+  </main>
+  <footer>
+    &copy; 2025 Company Name. All rights reserved.
+  </footer>
+  <script>
+    localStorage.removeItem('isLoggedIn');
+    document.body.style.transition = 'opacity 0.5s';
+    document.body.style.opacity = '0';
+    setTimeout(() => window.location.href = 'login.html', 500);
+  </script>
+</body>
+</html>

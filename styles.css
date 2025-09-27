@@ -1,0 +1,289 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #121518 url('inner-Starting-an-For-Laundry-Service-min.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: #e0e6ed;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+}
+
+header {
+  background: #232a34;
+  color: #e0e6ed;
+  padding: 18px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+header h1 {
+  font-size: 22px;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.home-button {
+  background: #232a34;
+  color: #e0e6ed;
+  border: 1px solid #3a4250;
+  border-radius: 6px;
+  padding: 8px 18px;
+  margin-right: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.home-button:hover {
+  background: #2d3e50;
+  color: #4caf50;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropbtn {
+  background: #232a34;
+  color: #e0e6ed;
+  border: 1px solid #3a4250;
+  border-radius: 6px;
+  padding: 8px 18px;
+  margin-right: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.dropbtn:hover {
+  background: #2d3e50;
+  color: #4caf50;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background: #232a34;
+  border: 1px solid #3a4250;
+  min-width: 180px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  z-index: 1;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.dropdown-content a {
+  color: #e0e6ed;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  font-size: 14px;
+}
+
+.dropdown-content a:hover {
+  background: #2d3e50;
+  color: #4caf50;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+main {
+  flex: 1;
+  padding: 20px;
+}
+
+footer {
+  background: #232a34;
+  color: #bfc9d1;
+  text-align: center;
+  padding: 16px 0 10px 0;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+}
+
+
+.left-middle-paragraph {
+  background: #232a34;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  max-width: 600px;
+  margin: 120px 0 0 40px;
+  padding: 32px 28px;
+  color: #e0e6ed;
+  text-align: left;
+}
+
+@media (max-width: 600px) {
+  .left-middle-paragraph {
+    position: static;
+    transform: none;
+    width: auto;
+    margin: 20px 0;
+    box-shadow: none;
+  }
+}
+
+.login-container {
+  max-width: 350px;
+  margin: 60px auto 0 auto;
+  padding: 32px 28px 24px 28px;
+  background: #232a34;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.32);
+  text-align: center;
+}
+
+.login-container h2 {
+  margin-bottom: 18px;
+  color: #e0e6ed;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.login-input {
+  padding: 10px 12px;
+  border: 1px solid #3a4250;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #181c24;
+  color: #e0e6ed;
+  transition: border 0.2s, background 0.2s;
+}
+
+.login-input:focus {
+  border: 1.5px solid #4caf50;
+  outline: none;
+  background: #232a34;
+}
+
+.login-btn {
+  background: linear-gradient(90deg, #388e3c 60%, #4caf50 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+
+.login-btn:hover {
+  background: linear-gradient(90deg, #4caf50 60%, #388e3c 100%);
+}
+
+.login-btn:active {
+  transform: scale(0.95);
+  transition: transform 0.1s;
+  box-shadow: 0 0 12px #4caf50;
+  text-shadow: 0 0 8px #4caf50;
+}
+
+.login-error {
+  color: #e57373;
+  font-size: 0.98rem;
+  margin-top: 6px;
+  display: none;
+}
+
+#loginError[style*="display: block"] {
+  display: block;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+main {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.dropdown-content {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+
+.dropdown:hover .dropdown-content {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.home-button:active, .dropbtn:active {
+  transform: scale(0.95);
+  transition: transform 0.1s;
+}
+
+.login-input:focus {
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.loading {
+  position: relative;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: auto;
+  border: 2px solid transparent;
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.preview {
+  color: #e0e6ed;
+  font-size: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  max-width: 600px;
+  transition: opacity 0.3s ease;
+}
