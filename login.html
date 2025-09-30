@@ -3,128 +3,118 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login - Executive Laundry Verdant</title>
+  <title>Dashboard - Executive Laundry Verdant</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    main {
+      max-height: 90vh;
+      overflow-y: scroll;
+      padding: 20px;
+      display: block;
+      background: transparent;
+      min-height: calc(100vh - 120px);
+    }
+    .dashboard-section {
+      background: rgba(35, 42, 52, 0.85);
+      padding: 32px 28px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+      color: #e0e6ed;
+      text-align: left;
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: 40px;
+    }
+    .dashboard-section h2, .dashboard-section h3 {
+      margin-top: 0;
+    }
+    .dashboard-section:hover {
+      background: rgba(76, 175, 80, 0.85);
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .header-content {
+      background-color: #4caf50;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-content h1 {
+      font-size: 4.5rem;
+      font-weight: 900;
+      color: white;
+      margin: 0;
+    }
+    .home-button {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: white;
+      background-color: #388e3c;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+    main > h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: #4caf50;
+      margin-left: 40px;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
   <header>
     <div class="header-content">
       <h1>Executive Laundry Verdant</h1>
+      <div class="header-actions">
+        <a href="logout.html" class="home-button">Log Out</a>
+      </div>
     </div>
   </header>
   <main>
-    <div class="login-container">
-      <h2>Log In</h2>
-      <p style="margin-bottom:18px; color:#bfc9d1;">Please enter your username and password to access your account.</p>
-      <form id="loginForm" class="login-form">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required class="login-input" />
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required class="login-input" />
-        <button type="submit" class="login-btn">Log In</button>
-        <p id="loginError" class="login-error">Invalid username or password.</p>
-      </form>
-    </div>
+    <h1>Dashboard</h1>
+    <section class="dashboard-section">
+      <h2><a href="add-update-profile.html" style="color:#4caf50; text-decoration:none;">Welcome to your dashboard</a></h2>
+      <p class="preview-text" data-fulltext="Access all features of Executive Laundry Verdant, manage your profile, view past services, and generate reports. Our premium laundry service ensures your clothes are cleaned with care using eco-friendly detergents and advanced equipment.">Access all features of Executive Laundry Verdant, manage your profile, view past services, and generate reports.</p>
+    </section>
+    <section class="dashboard-section">
+      <h3><a href="add-update-profile.html" style="color:#4caf50; text-decoration:none;">Profile</a></h3>
+      <p class="preview-text" data-fulltext="Manage your profile information here. Update personal details, change password, set delivery preferences, and view account history.">Manage your profile information here.</p>
+    </section>
+    <section class="dashboard-section">
+      <h3><a href="past-services.html" style="color:#4caf50; text-decoration:none;">Past Services</a></h3>
+      <p class="preview-text" data-fulltext="View your past laundry services including Wash & Fold, Dry Cleaning, and Ironing.">View your past laundry services.</p>
+    </section>
+    <section class="dashboard-section">
+      <h3><a href="generate-reports.html" style="color:#4caf50; text-decoration:none;">Generate Reports</a></h3>
+      <p class="preview-text" data-fulltext="Create and download reports such as monthly usage report, spending summary, service history, and environmental impact.">Create and download reports.</p>
+    </section>
   </main>
   <footer>
     &copy; 2025 Company Name. All rights reserved.
   </footer>
   <script>
-    // Animation config embedded directly
-    const animationConfig = {
-      buttonPress: { duration: 100, easing: 'ease', scale: 0.95 },
-      inputFocus: { duration: 200, easing: 'ease', spread: '0 0 8px', color: 'rgba(76, 175, 80, 0.5)' },
-      dropdownSlide: { duration: 300, easing: 'ease', from: { opacity: 0, translateY: '-10px' }, to: { opacity: 1, translateY: '0px' } },
-      pageFade: { duration: 500, easing: 'ease-out', to: 0 },
-      formSubmitLoading: { duration: 1000 },
-      listItemFadeIn: { duration: 300, easing: 'ease-out', from: { opacity: 0, translateY: '20px' }, to: { opacity: 1, translateY: '0px' } }
-    };
+    // Page fade in
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelector('main').classList.add('fade-in');
 
-    // Apply button press animation
-    function animateButtonPress(button, config) {
-      button.style.transition = `transform ${config.duration}ms ${config.easing}`;
-      button.style.transform = `scale(${config.scale})`;
-      setTimeout(() => {
-        button.style.transform = 'scale(1)';
-      }, config.duration);
-    }
+      // Hover to show full text
+      const sections = document.querySelectorAll('.dashboard-section');
+      sections.forEach(section => {
+        const p = section.querySelector('.preview-text');
+        if (!p) return;
+        const originalText = p.textContent;
+        const fullText = p.dataset.fulltext;
 
-    // Apply input focus animation
-    function animateInputFocus(input, config) {
-      input.style.transition = `box-shadow ${config.duration}ms ${config.easing}`;
-      input.style.boxShadow = `${config.spread} ${config.color}`;
-    }
-
-    // Remove input focus animation
-    function removeInputFocus(input) {
-      input.style.boxShadow = 'none';
-    }
-
-    // Animate dropdown slide and fade
-    function animateDropdown(dropdown, config) {
-      dropdown.style.transition = `opacity ${config.duration}ms ${config.easing}, transform ${config.duration}ms ${config.easing}`;
-      dropdown.style.opacity = config.to.opacity;
-      dropdown.style.transform = `translateY(${config.to.translateY})`;
-    }
-
-    // Animate page fade out
-    function animatePageFade(config) {
-      document.body.style.transition = `opacity ${config.duration}ms ${config.easing}`;
-      document.body.style.opacity = config.to;
-    }
-
-    // Animate form submit loading spinner
-    function addLoadingSpinner(button, config) {
-      button.disabled = true;
-      button.textContent = 'Loading...';
-      button.classList.add('loading');
-    }
-
-    // Animate list item fade in
-    function animateListItemFadeIn(item, config) {
-      item.style.opacity = config.from.opacity;
-      item.style.transform = `translateY(${config.from.translateY})`;
-      item.style.transition = `opacity ${config.duration}ms ${config.easing}, transform ${config.duration}ms ${config.easing}`;
-      requestAnimationFrame(() => {
-        item.style.opacity = config.to.opacity;
-        item.style.transform = `translateY(${config.to.translateY})`;
+        section.addEventListener('mouseenter', () => {
+          p.textContent = fullText;
+        });
+        section.addEventListener('mouseleave', () => {
+          p.textContent = originalText;
+        });
       });
-    }
-
-    // Main login form logic with animations
-    const loginForm = document.getElementById('loginForm');
-    const loginError = document.getElementById('loginError');
-    const loginBtn = document.querySelector('.login-btn');
-
-    loginForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      if (username && password) {
-        animateButtonPress(loginBtn, animationConfig.buttonPress);
-        addLoadingSpinner(loginBtn, animationConfig.formSubmitLoading);
-        setTimeout(() => {
-          localStorage.setItem('isLoggedIn', 'true');
-          loginError.style.display = 'none';
-          animatePageFade(animationConfig.pageFade);
-          setTimeout(() => window.location.href = 'index.html', animationConfig.pageFade.duration);
-        }, animationConfig.formSubmitLoading.duration);
-      } else {
-        loginError.style.display = 'block';
-      }
-    });
-
-    // Allow direct access to index.html if logged in
-    if (localStorage.getItem('isLoggedIn') === 'true') {
-      if (window.location.pathname.endsWith('login.html')) {
-        window.location.href = 'index.html';
-      }
-    }
-
-    const inputs = loginForm.querySelectorAll('input');
-    inputs.forEach(input => {
-      input.addEventListener('focus', () => animateInputFocus(input, animationConfig.inputFocus));
-      input.addEventListener('blur', () => removeInputFocus(input));
     });
   </script>
 </body>
