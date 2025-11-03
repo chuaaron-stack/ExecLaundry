@@ -1,12 +1,36 @@
-  `1<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login - Executive Laundry Verdant</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .cursor-follower {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      background: rgba(76, 175, 80, 0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.1s ease;
+    }
+.parallax-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+background: url('Executive Dry Cleaning & Laundry Services.jpeg') no-repeat center center;
+background-size: 140%;
+filter: none;
+      z-index: -1;
+    }
+  </style>
 </head>
 <body>
+  <div class="parallax-bg"></div>
   <header>
     <div class="header-content" style="background-color: #4caf50; padding: 30px 20px; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-shadow: 2px 2px 4px rgba(0,0,0,0.6);">
       <h1 style="font-size: 4.5rem; font-weight: 900; color: white; margin: 0; letter-spacing: 3px; font-style: italic;">Executive Laundry Verdant</h1>
@@ -30,25 +54,7 @@
     &copy; 2025 Company Name. All rights reserved.
   </footer>
 
-  <!-- Add your background music audio element here -->
-  <audio id="background-music" src="Radiohead - No Surprises.mp3" loop controls></audio>
-  <script>
-    // Unmute background music on first user interaction to comply with browser autoplay policies
-    document.addEventListener('click', function unmute() {
-      const audio = document.getElementById('background-music');
-      if (audio.muted) {
-        audio.muted = false;
-      }
-      document.removeEventListener('click', unmute);
-    });
-    document.addEventListener('keydown', function unmute() {
-      const audio = document.getElementById('background-music');
-      if (audio.muted) {
-        audio.muted = false;
-      }
-      document.removeEventListener('keydown', unmute);
-    });
-  </script>
+
 
   <script>
     const animationConfig = {
@@ -108,34 +114,63 @@
     const loginError = document.getElementById('loginError');
     const loginBtn = document.querySelector('.login-btn');
 
-    loginForm.addEventListener('submit', function(e) {
+    loginForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
+
       if (username && password) {
         animateButtonPress(loginBtn, animationConfig.buttonPress);
         addLoadingSpinner(loginBtn, animationConfig.formSubmitLoading);
-        setTimeout(() => {
-          localStorage.setItem('isLoggedIn', 'true');
-          loginError.style.display = 'none';
-          animatePageFade(animationConfig.pageFade);
-        setTimeout(() => window.location.href = 'login.html', animationConfig.pageFade.duration);
-      }, animationConfig.formSubmitLoading.duration);
-    } else {
-      loginError.style.display = 'block';
-    }
-  });
 
-  // For testing: clear login flag on index.html load to force showing login page
-  localStorage.removeItem('isLoggedIn');
+        try {
+          const response = await fetch('http://localhost/api/login.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+          });
 
-  if (localStorage.getItem('isLoggedIn') === 'true') {
+          const data = await response.json();
+
+          if (data.success) {
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            loginError.style.display = 'none';
+            animatePageFade(animationConfig.pageFade);
+            setTimeout(() => window.location.href = 'login.html', animationConfig.pageFade.duration);
+          } else {
+            loginError.textContent = data.message;
+            loginError.style.display = 'block';
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Log In';
+            loginBtn.classList.remove('loading');
+          }
+        } catch (error) {
+          console.error('Login error:', error);
+          loginError.textContent = 'Connection error. Please try again.';
+          loginError.style.display = 'block';
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Log In';
+          loginBtn.classList.remove('loading');
+        }
+      } else {
+        loginError.style.display = 'block';
+      }
+    });
+
+  // Check authentication status
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
+
+  if (user && user.userId) {
+    // User is logged in, redirect to dashboard
     if (window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/')) {
-      // Redirect logged-in users to dashboard (login.html)
       window.location.href = 'login.html';
     }
   } else {
-    // If not logged in and on dashboard page, redirect to login page
+    // User is not logged in, ensure they stay on login page
     if (window.location.pathname.endsWith('login.html')) {
       window.location.href = 'index.html';
     }
@@ -146,6 +181,24 @@
       input.addEventListener('focus', () => animateInputFocus(input, animationConfig.inputFocus));
       input.addEventListener('blur', () => removeInputFocus(input));
     });
+
+    // Cursor follower and parallax effect
+    const follower = document.createElement('div');
+    follower.classList.add('cursor-follower');
+    document.body.appendChild(follower);
+
+    const parallaxBg = document.querySelector('.parallax-bg');
+
+    document.addEventListener('mousemove', (e) => {
+      follower.style.left = e.clientX - 10 + 'px';
+      follower.style.top = e.clientY - 10 + 'px';
+
+      // Parallax effect
+      const x = (e.clientX / window.innerWidth - 0.5) * 50;
+      const y = (e.clientY / window.innerHeight - 0.5) * 50;
+      parallaxBg.style.backgroundPosition = `${50 + x}% ${50 + y}%`;
+    });
   </script>
+
 </body>
 </html>

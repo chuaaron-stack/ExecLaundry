@@ -11,7 +11,7 @@
     <div class="header-content">
       <h1>Log Out</h1>
       <div class="header-actions">
-        <a href="index.html" class="home-button">Home</a>
+<a href="login.html" class="home-button" style="background-color: #d32f2f; color: white;">Home</a>
       </div>
     </div>
   </header>
@@ -26,11 +26,32 @@
     &copy; 2025 Company Name. All rights reserved.
   </footer>
   <script>
-    // Clear login flag and redirect to login page
-    localStorage.removeItem('isLoggedIn');
-    document.body.style.transition = 'opacity 0.5s';
-    document.body.style.opacity = '0';
-    setTimeout(() => window.location.href = 'index.html', 500);
+    // Clear user session and redirect to login page
+    async function logout() {
+      try {
+        // Call logout API to clear server-side session
+        await fetch('http://localhost/api/logout.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (error) {
+        console.log('Server logout failed, proceeding with client logout');
+      }
+
+      // Clear client-side session data
+      localStorage.removeItem('user');
+      localStorage.removeItem('isLoggedIn');
+
+      // Add fade out animation
+      document.body.style.transition = 'opacity 0.5s';
+      document.body.style.opacity = '0';
+
+      // Redirect after animation
+      setTimeout(() => window.location.href = 'index.html', 500);
+    }
+
+    // Execute logout on page load
+    document.addEventListener('DOMContentLoaded', logout);
   </script>
 </body>
 </html>

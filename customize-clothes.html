@@ -11,13 +11,36 @@
     <div class="header-content">
       <h1>Customize Clothes</h1>
       <div class="header-actions">
-        <a href="index.html" class="home-button">Home</a>
+<a href="login.html" class="home-button">Home</a>
       </div>
     </div>
   </header>
   <main>
     <div class="left-middle-paragraph">
-      <h3>Add Clothes</h3>
+      <h3>Manage Clothing Items</h3>
+      <div id="servicesSection" style="margin-bottom: 30px;">
+        <h4>Available Services</h4>
+        <div id="servicesList">Loading services...</div>
+      </div>
+
+      <h4>Create New Service Request</h4>
+      <form id="createRequestForm" style="display:flex;gap:12px;flex-direction:column;max-width:500px;">
+        <select id="serviceSelect" required style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;">
+          <option value="">Select Service</option>
+        </select>
+        <input type="datetime-local" id="pickupDate" required style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
+        <input type="datetime-local" id="deliveryDate" style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
+        <textarea id="specialInstructions" placeholder="Special instructions (optional)" style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;min-height:60px;"></textarea>
+        <button type="submit" class="login-btn" style="padding:8px 18px;">Create Request</button>
+      </form>
+      <div id="requestMessage" style="margin-top: 10px; color: #4caf50;"></div>
+
+      <h4 style="margin-top: 30px;">Current Requests</h4>
+      <div id="requestsList" style="margin-top:18px;max-height:200px;overflow-y:auto;">
+        <p>Loading requests...</p>
+      </div>
+
+      <h4 style="margin-top: 30px;">Add Clothing Items to Request</h4>
       <form id="addClothesForm" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
         <input type="text" id="clothingItem" placeholder="Clothing Item" required style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
         <select id="colorSelect" required style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;">
@@ -30,9 +53,12 @@
           <option value="Yellow">Yellow</option>
         </select>
         <input type="number" id="quantity" min="1" placeholder="Quantity" required style="width:90px;padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
-        <button type="submit" class="login-btn" style="padding:8px 18px;">Add</button>
+        <textarea id="itemDescription" placeholder="Description (optional)" style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;width:200px;min-height:40px;"></textarea>
+        <button type="submit" class="login-btn" style="padding:8px 18px;">Add Item</button>
       </form>
-      <ul id="clothesList" style="margin-top:18px;list-style:none;padding:0;"></ul>
+      <div id="clothesList" style="margin-top:18px;max-height:300px;overflow-y:auto;">
+        <p>No items added yet. Create a service request first.</p>
+      </div>
     </div>
     <script>
       // Animation config embedded directly
@@ -78,6 +104,111 @@
         input.style.boxShadow = 'none';
       }
 
+      let currentRequestId = null;
+      let clothingItems = [];
+
+      // Load available services
+      async function loadServices() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('Please log in to access this page');
+          window.location.href = 'index.html';
+          return;
+        }
+
+        try {
+          const response = await fetch('http://localhost/api/services.php', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          const data = await response.json();
+          if (data.success) {
+            const serviceSelect = document.getElementById('serviceSelect');
+            const servicesList = document.getElementById('servicesList');
+            servicesList.innerHTML = '';
+
+            data.services.forEach(service => {
+              const option = document.createElement('option');
+              option.value = service.ServiceID;
+              option.textContent = `${service.ServiceName} - $${service.BasePrice}`;
+              serviceSelect.appendChild(option);
+
+              const serviceDiv = document.createElement('div');
+              serviceDiv.style.padding = '10px';
+              serviceDiv.style.border = '1px solid #3a4250';
+              serviceDiv.style.marginBottom = '8px';
+              serviceDiv.style.borderRadius = '6px';
+              serviceDiv.innerHTML = `
+                <h5>${service.ServiceName}</h5>
+                <p>${service.Description || 'No description'}</p>
+                <p><strong>Price:</strong> $${service.BasePrice}</p>
+                <p><strong>Duration:</strong> ${service.EstimatedDurationHours} hours</p>
+                <p><strong>Status:</strong> ${service.IsActive ? 'Active' : 'Inactive'}</p>
+              `;
+              servicesList.appendChild(serviceDiv);
+            });
+          }
+        } catch (error) {
+          document.getElementById('servicesList').innerHTML = '<p>Error loading services</p>';
+        }
+      }
+
+      // Create service request
+      const createRequestForm = document.getElementById('createRequestForm');
+      createRequestForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const token = localStorage.getItem('token');
+        const serviceId = document.getElementById('serviceSelect').value;
+        const pickupDate = document.getElementById('pickupDate').value;
+        const deliveryDate = document.getElementById('deliveryDate').value;
+        const specialInstructions = document.getElementById('specialInstructions').value;
+
+        if (serviceId && pickupDate && token) {
+          animateButtonPress(createRequestForm.querySelector('button[type="submit"]'), animationConfig.buttonPress);
+          addLoadingSpinner(createRequestForm.querySelector('button[type="submit"]'), animationConfig.formSubmitLoading);
+
+          try {
+            const response = await fetch('http://localhost/api/requests.php', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                serviceId: parseInt(serviceId),
+                scheduledPickupDate: pickupDate,
+                scheduledDeliveryDate: deliveryDate || null,
+                specialInstructions,
+                items: clothingItems
+              })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+              currentRequestId = data.requestId;
+              document.getElementById('requestMessage').textContent = `Request created successfully! Request ID: ${currentRequestId}`;
+              document.getElementById('clothesList').innerHTML = '<p>Request created. You can now add clothing items.</p>';
+              createRequestForm.reset();
+              clothingItems = []; // Reset items for new request
+            } else {
+              document.getElementById('requestMessage').textContent = data.message;
+              document.getElementById('requestMessage').style.color = '#f44336';
+            }
+          } catch (error) {
+            document.getElementById('requestMessage').textContent = 'Error creating request';
+            document.getElementById('requestMessage').style.color = '#f44336';
+          }
+
+          createRequestForm.querySelector('button[type="submit"]').disabled = false;
+          createRequestForm.querySelector('button[type="submit"]').textContent = 'Create Request';
+          createRequestForm.querySelector('button[type="submit"]').classList.remove('loading');
+        }
+      });
+
+      // Add clothing items
       const addClothesForm = document.getElementById('addClothesForm');
       const clothesList = document.getElementById('clothesList');
       addClothesForm.addEventListener('submit', function(e) {
@@ -85,22 +216,77 @@
         const item = document.getElementById('clothingItem').value;
         const color = document.getElementById('colorSelect').value;
         const quantity = document.getElementById('quantity').value;
-        if(item && color && quantity) {
-          animateButtonPress(addClothesForm.querySelector('button[type="submit"]'), animationConfig.buttonPress);
-          addLoadingSpinner(addClothesForm.querySelector('button[type="submit"]'), animationConfig.formSubmitLoading);
+        const description = document.getElementById('itemDescription').value;
+
+        if (item && color && quantity) {
+          if (!currentRequestId) {
+            alert('Please create a service request first!');
+            return;
+          }
+
+          const itemData = {
+            itemName: item,
+            color,
+            quantity: parseInt(quantity),
+            itemDescription: description
+          };
+
+          clothingItems.push(itemData);
+
           const li = document.createElement('li');
-          li.textContent = `${item} - ${color} - Qty: ${quantity}`;
+          li.textContent = `${item} - ${color} - Qty: ${quantity}${description ? ` - ${description}` : ''}`;
           li.style.padding = '6px 0';
           li.style.opacity = '0';
           clothesList.appendChild(li);
           animateListItemFadeIn(li, animationConfig.listItemFadeIn);
           addClothesForm.reset();
-          setTimeout(() => {
-            addClothesForm.querySelector('button[type="submit"]').disabled = false;
-            addClothesForm.querySelector('button[type="submit"]').textContent = 'Add';
-            addClothesForm.querySelector('button[type="submit"]').classList.remove('loading');
-          }, animationConfig.formSubmitLoading.duration);
         }
+      });
+
+      // Load user requests
+      async function loadRequests() {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const token = localStorage.getItem('token');
+        if (user.userId && token) {
+          try {
+            const response = await fetch(`http://localhost/api/requests.php?userId=${user.userId}`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            const data = await response.json();
+            if (data.success) {
+              const requestsList = document.getElementById('requestsList');
+              requestsList.innerHTML = '';
+              data.requests.forEach(request => {
+                const requestDiv = document.createElement('div');
+                requestDiv.style.padding = '10px';
+                requestDiv.style.border = '1px solid #3a4250';
+                requestDiv.style.marginBottom = '8px';
+                requestDiv.style.borderRadius = '6px';
+                requestDiv.innerHTML = `
+                  <p><strong>Request ID:</strong> ${request.RequestID}</p>
+                  <p><strong>Service:</strong> ${request.ServiceName}</p>
+                  <p><strong>Status:</strong> ${request.Status}</p>
+                  <p><strong>Pickup:</strong> ${new Date(request.ScheduledPickupDate).toLocaleString()}</p>
+                  ${request.ScheduledDeliveryDate ? `<p><strong>Delivery:</strong> ${new Date(request.ScheduledDeliveryDate).toLocaleString()}</p>` : ''}
+                  <p><strong>Items:</strong> ${request.ItemCount || 0}</p>
+                `;
+                requestsList.appendChild(requestDiv);
+              });
+            }
+          } catch (error) {
+            document.getElementById('requestsList').innerHTML = '<p>Error loading requests</p>';
+          }
+        }
+      }
+
+      // Load data on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        loadServices();
+        loadRequests();
       });
 
       const inputs = document.querySelectorAll('input, select');

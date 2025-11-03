@@ -11,39 +11,177 @@
     <div class="header-content">
       <h1>Generate Reports</h1>
       <div class="header-actions">
-        <a href="index.html" class="home-button">Home</a>
+<a href="login.html" class="home-button">Home</a>
       </div>
     </div>
   </header>
   <main>
     <div class="left-middle-paragraph">
+      <h3>Service Reports & Analytics</h3>
       <p>
         Generate detailed reports of your laundry usage, spending, and service history. Use the options below to customize your report.
       </p>
-      <canvas id="usageChart" width="400" height="220" style="margin-top:28px;background:#232a34;border-radius:8px;"></canvas>
+
+      <div id="reportFilters" style="margin-top: 20px; margin-bottom: 30px;">
+        <h4>Report Filters</h4>
+        <form id="reportForm" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+          <select id="reportType" style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;">
+            <option value="usage">Usage Report</option>
+            <option value="spending">Spending Report</option>
+            <option value="status">Status Report</option>
+          </select>
+          <input type="date" id="startDate" style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
+          <input type="date" id="endDate" style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
+          <button type="submit" class="login-btn" style="padding:8px 18px;">Generate Report</button>
+          <button type="button" onclick="exportReport()" class="login-btn" style="padding:8px 18px;">Export PDF</button>
+        </form>
+      </div>
+
+      <div id="reportResults" style="margin-top: 30px;">
+        <canvas id="usageChart" width="400" height="220" style="margin-top:28px;background:#232a34;border-radius:8px;"></canvas>
+        <div id="reportSummary" style="margin-top: 20px; padding: 20px; background: #2d3e50; border-radius: 8px;">
+          <h4>Report Summary</h4>
+          <div id="summaryContent">Select filters and generate a report to see summary data.</div>
+        </div>
+      </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-      const ctx = document.getElementById('usageChart').getContext('2d');
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr'],
-          datasets: [{
-            label: 'Laundry Orders',
-            data: [8, 12, 9, 14],
-            backgroundColor: '#4caf50',
-          }]
-        },
-        options: {
-          plugins: {
-            legend: { labels: { color: '#e0e6ed' } }
-          },
-          scales: {
-            x: { ticks: { color: '#e0e6ed' } },
-            y: { ticks: { color: '#e0e6ed' } }
-          }
+      let currentChart = null;
+
+      // Generate report
+      document.getElementById('reportForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const token = localStorage.getItem('token');
+        if (!user.userId || !token) {
+          alert('Please log in to generate reports.');
+          return;
         }
+
+        const reportType = document.getElementById('reportType').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        try {
+          const params = new URLSearchParams({
+            userId: user.userId,
+            type: reportType,
+            start: startDate,
+            end: endDate
+          });
+
+          const response = await fetch(`http://localhost/api/reports.php?${params}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          const data = await response.json();
+
+          if (data.success) {
+            updateChart(data.chartData, reportType);
+            updateSummary(data.summary, reportType);
+          } else {
+            alert('Error generating report: ' + data.message);
+          }
+        } catch (error) {
+          alert('Error generating report');
+        }
+      });
+
+      // Update chart
+      function updateChart(chartData, reportType) {
+        if (currentChart) {
+          currentChart.destroy();
+        }
+
+        const ctx = document.getElementById('usageChart').getContext('2d');
+        const config = {
+          type: 'bar',
+          data: {
+            labels: chartData.labels,
+            datasets: [{
+              label: getChartLabel(reportType),
+              data: chartData.data,
+              backgroundColor: '#4caf50',
+            }]
+          },
+          options: {
+            plugins: {
+              legend: { labels: { color: '#e0e6ed' } }
+            },
+            scales: {
+              x: { ticks: { color: '#e0e6ed' } },
+              y: { ticks: { color: '#e0e6ed' } }
+            }
+          }
+        };
+
+        currentChart = new Chart(ctx, config);
+      }
+
+      // Update summary
+      function updateSummary(summary, reportType) {
+        const summaryContent = document.getElementById('summaryContent');
+        let html = '';
+
+        switch (reportType) {
+          case 'usage':
+            html = `
+              <p><strong>Total Requests:</strong> ${summary.totalRequests}</p>
+              <p><strong>Completed Requests:</strong> ${summary.completedRequests}</p>
+              <p><strong>Pending Requests:</strong> ${summary.pendingRequests}</p>
+              <p><strong>Average Items per Request:</strong> ${summary.avgItemsPerRequest}</p>
+            `;
+            break;
+          case 'spending':
+            html = `
+              <p><strong>Total Spent:</strong> $${summary.totalSpent}</p>
+              <p><strong>Average per Request:</strong> $${summary.avgPerRequest}</p>
+              <p><strong>Highest Single Request:</strong> $${summary.highestRequest}</p>
+              <p><strong>Most Used Service:</strong> ${summary.mostUsedService}</p>
+            `;
+            break;
+          case 'status':
+            html = `
+              <p><strong>Pending:</strong> ${summary.pending}</p>
+              <p><strong>In Progress:</strong> ${summary.inProgress}</p>
+              <p><strong>Completed:</strong> ${summary.completed}</p>
+              <p><strong>Cancelled:</strong> ${summary.cancelled}</p>
+            `;
+            break;
+        }
+
+        summaryContent.innerHTML = html;
+      }
+
+      // Get chart label
+      function getChartLabel(reportType) {
+        switch (reportType) {
+          case 'usage': return 'Service Requests';
+          case 'spending': return 'Spending ($)';
+          case 'status': return 'Requests by Status';
+          default: return 'Data';
+        }
+      }
+
+      // Export report
+      function exportReport() {
+        // Simple export functionality - in a real app, this would generate a PDF
+        alert('Export functionality would generate a PDF report here.');
+      }
+
+      // Initialize with default data
+      document.addEventListener('DOMContentLoaded', function() {
+        // Set default date range (last 30 days)
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+
+        document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+        document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
       });
     </script>
   </main>

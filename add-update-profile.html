@@ -11,25 +11,31 @@
     <div class="header-content">
       <h1>Dashboard</h1>
       <div class="header-actions">
-        <a href="index.html" class="home-button">Home</a>
+<a href="login.html" class="home-button">Home</a>
       </div>
     </div>
   </header>
-  <main style="display: flex; flex-wrap: wrap; gap: 24px; padding: 32px; background: transparent; min-height: calc(100vh - 120px);">
+  <main style="display: flex; flex-wrap: wrap; gap: 24px; padding: 32px; background: transparent; min-height: calc(100vh - 120px); justify-content: center;">
     <div class="left-middle-paragraph" style="flex: 1 1 45%; padding: 32px 28px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.18); color: #e0e6ed; text-align: left; background: rgba(35, 42, 52, 0.85);">
       <p>
         Welcome to your dashboard! Here you can access all features of Executive Laundry Verdant, manage your profile, view past services, and generate reports.
       </p>
     </div>
     <div class="left-middle-paragraph" style="flex: 1 1 45%; margin-top: 0; background: rgba(35, 42, 52, 0.85);">
-      <h3>Add Customer Account</h3>
-      <form id="addAccountForm" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-        <input type="text" id="accountName" placeholder="Name" required style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
-        <input type="email" id="accountEmail" placeholder="Email" required style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
-        <input type="text" id="accountPhone" placeholder="Phone" required style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
-        <button type="submit" class="login-btn" style="padding:8px 18px;">Add Account</button>
+      <h3>Profile Management</h3>
+      <div id="profileSection">
+        <p>Loading profile...</p>
+      </div>
+
+      <h3 style="margin-top: 30px;">Update Profile</h3>
+      <form id="updateProfileForm" style="display:flex;gap:12px;flex-direction:column;">
+        <input type="text" id="updateName" placeholder="Full Name" style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
+        <input type="email" id="updateEmail" placeholder="Email" style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
+        <input type="text" id="updatePhone" placeholder="Phone" style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
+        <input type="password" id="updatePassword" placeholder="New Password (leave empty to keep current)" style="padding:8px;border-radius:6px;border:1px solid #3a4250;background:#181c24;color:#e0e6ed;" />
+        <button type="submit" class="login-btn" style="padding:8px 18px;">Update Profile</button>
       </form>
-      <ul id="accountsList" style="margin-top:18px;list-style:none;padding:0;"></ul>
+      <div id="updateMessage" style="margin-top: 10px;"></div>
     </div>
     <div class="left-middle-paragraph" style="flex: 1 1 100%; margin-top: 0; background: rgba(35, 42, 52, 0.85);">
       <h3>Add Clothes</h3>
@@ -115,28 +121,196 @@
         }
       });
 
+      // Load current user profile
+      async function loadProfile() {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const token = localStorage.getItem('token');
+        if (user.userId && token) {
+          try {
+            const response = await fetch(`http://localhost/api/users.php?userId=${user.userId}`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            const data = await response.json();
+            if (data.success) {
+              // Find current user in the list
+              const currentUser = data.users.find(u => u.UserID == user.userId);
+              if (currentUser) {
+                document.getElementById('profileSection').innerHTML = `
+                  <p><strong>Name:</strong> ${currentUser.FullName}</p>
+                  <p><strong>Email:</strong> ${currentUser.Email}</p>
+                  <p><strong>Phone:</strong> ${currentUser.Phone}</p>
+                  <p><strong>Username:</strong> ${currentUser.Username}</p>
+                  <p><strong>Status:</strong> ${currentUser.IsActive ? 'Active' : 'Inactive'}</p>
+                  <button onclick="editProfile()" class="login-btn" style="margin-top: 10px;">Edit Profile</button>
+                `;
+              }
+            }
+          } catch (error) {
+            document.getElementById('profileSection').innerHTML = '<p>Error loading profile</p>';
+          }
+        }
+      }
+
+      // Load all users (admin function)
+      async function loadUsers() {
+        try {
+          const response = await fetch('http://localhost/api/users.php');
+          const data = await response.json();
+          if (data.success) {
+            const accountsList = document.getElementById('accountsList');
+            accountsList.innerHTML = '';
+            data.users.forEach(user => {
+              const div = document.createElement('div');
+              div.style.padding = '10px';
+              div.style.border = '1px solid #3a4250';
+              div.style.marginBottom = '8px';
+              div.style.borderRadius = '6px';
+              div.innerHTML = `
+                <p><strong>${user.FullName}</strong> (${user.Username})</p>
+                <p>Email: ${user.Email} | Phone: ${user.Phone}</p>
+                <p>Status: ${user.IsActive ? 'Active' : 'Inactive'}</p>
+                <button onclick="toggleUserStatus(${user.UserID}, ${user.IsActive})" class="login-btn" style="font-size: 12px; padding: 4px 8px;">
+                  ${user.IsActive ? 'Deactivate' : 'Activate'}
+                </button>
+              `;
+              accountsList.appendChild(div);
+            });
+          }
+        } catch (error) {
+          document.getElementById('accountsList').innerHTML = '<p>Error loading users</p>';
+        }
+      }
+
+      // Add new user
       const addAccountForm = document.getElementById('addAccountForm');
-      const accountsList = document.getElementById('accountsList');
       const addAccountBtn = addAccountForm.querySelector('button[type="submit"]');
-      addAccountForm.addEventListener('submit', function(e) {
+      addAccountForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         const name = document.getElementById('accountName').value;
+        const username = document.getElementById('accountUsername').value;
         const email = document.getElementById('accountEmail').value;
         const phone = document.getElementById('accountPhone').value;
-        if(name && email && phone) {
+        const password = document.getElementById('accountPassword').value;
+
+        if(name && username && email && phone && password) {
           animateButtonPress(addAccountBtn, animationConfig.buttonPress);
           addLoadingSpinner(addAccountBtn, animationConfig.formSubmitLoading);
-          const li = document.createElement('li');
-          li.textContent = `${name} - ${email} - ${phone}`;
-          li.style.padding = '6px 0';
-          animateListItemFadeIn(li, animationConfig.listItemFadeIn);
-          accountsList.appendChild(li);
-          addAccountForm.reset();
-          setTimeout(() => {
-            animatePageFade(animationConfig.pageFade);
-            setTimeout(() => window.location.href = 'customize-clothes.html', animationConfig.pageFade.duration);
-          }, animationConfig.formSubmitLoading.duration);
+
+          try {
+            const response = await fetch('http://localhost/api/users.php', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ fullName: name, username, email, phone, password })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+              document.getElementById('accountMessage').textContent = 'Account created successfully!';
+              addAccountForm.reset();
+              loadUsers(); // Refresh the list
+            } else {
+              document.getElementById('accountMessage').textContent = data.message;
+              document.getElementById('accountMessage').style.color = '#f44336';
+            }
+          } catch (error) {
+            document.getElementById('accountMessage').textContent = 'Error creating account';
+            document.getElementById('accountMessage').style.color = '#f44336';
+          }
+
+          addAccountBtn.disabled = false;
+          addAccountBtn.textContent = 'Add Account';
+          addAccountBtn.classList.remove('loading');
         }
+      });
+
+      // Toggle user status
+      async function toggleUserStatus(userId, currentStatus) {
+        try {
+          const response = await fetch('http://localhost/api/users.php', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, isActive: !currentStatus })
+          });
+          const data = await response.json();
+          if (data.success) {
+            loadUsers(); // Refresh the list
+          }
+        } catch (error) {
+          alert('Error updating user status');
+        }
+      }
+
+      // Edit profile function
+      function editProfile() {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (user.userId) {
+          try {
+            const response = fetch(`http://localhost/api/users.php?id=${user.userId}`);
+            const data = response.json();
+            if (data.success) {
+              document.getElementById('updateName').value = data.user.FullName;
+              document.getElementById('updateEmail').value = data.user.Email;
+              document.getElementById('updatePhone').value = data.user.Phone;
+            }
+          } catch (error) {
+            console.log('Error loading profile for edit');
+          }
+        }
+      }
+
+      // Update profile
+      const updateProfileForm = document.getElementById('updateProfileForm');
+      updateProfileForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const token = localStorage.getItem('token');
+        const name = document.getElementById('updateName').value;
+        const email = document.getElementById('updateEmail').value;
+        const phone = document.getElementById('updatePhone').value;
+        const password = document.getElementById('updatePassword').value;
+
+        if (user.userId && token) {
+          try {
+            const updateData = { userId: user.userId };
+            if (name) updateData.fullName = name;
+            if (email) updateData.email = email;
+            if (phone) updateData.phone = phone;
+            if (password) updateData.password = password;
+
+            const response = await fetch('http://localhost/api/users.php', {
+              method: 'PUT',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(updateData)
+            });
+            const data = await response.json();
+
+            if (data.success) {
+              document.getElementById('updateMessage').textContent = 'Profile updated successfully!';
+              document.getElementById('updateMessage').style.color = '#4caf50';
+              updateProfileForm.reset();
+              loadProfile(); // Refresh profile display
+            } else {
+              document.getElementById('updateMessage').textContent = data.message;
+              document.getElementById('updateMessage').style.color = '#f44336';
+            }
+          } catch (error) {
+            document.getElementById('updateMessage').textContent = 'Error updating profile';
+            document.getElementById('updateMessage').style.color = '#f44336';
+          }
+        }
+      });
+
+      // Load data on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        loadProfile();
+        loadUsers();
       });
 
       const inputs = document.querySelectorAll('input, select');

@@ -130,7 +130,7 @@ footer {
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.18);
   max-width: 600px;
-  margin: 120px 0 0 40px;
+  margin: 120px auto 0 auto;
   padding: 32px 28px;
   color: #e0e6ed;
   text-align: left;
@@ -154,6 +154,8 @@ footer {
   border-radius: 16px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.32);
   text-align: center;
+  justify-content: center;
+  align-items: center;
 }
 
 .login-container h2 {
