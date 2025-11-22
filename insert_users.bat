@@ -1,0 +1,2 @@
+echo Enter MySQL root password when prompted
+"C:\xampp\mysql\bin\mysql.exe" -u root -p -e "USE ExecutiveLaundryVerdant; INSERT INTO Users (Username, PasswordHash, FullName, Email, Phone, IsActive) VALUES ('admin', 'admin123', 'Administrator', 'admin@laundry.com', '123-456-7890', TRUE), ('user1', 'password', 'John Doe', 'john@example.com', '987-654-3210', TRUE), ('user2', 'password', 'Jane Smith', 'jane@example.com', '555-123-4567', TRUE);"

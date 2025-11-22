@@ -11,212 +11,49 @@
     <div class="header-content">
       <h1>Past Services</h1>
       <div class="header-actions">
-<a href="login.html" class="home-button">Home</a>
+        <a href="index.html" class="home-button">Home</a>
       </div>
     </div>
   </header>
   <main>
     <div class="left-middle-paragraph">
-      <h3>Service Request History</h3>
       <p>
         Review your past laundry and dry cleaning services here. Track your service history and details for your records.
       </p>
-
-      <div id="requestsList" style="margin-top: 24px;">
-        <p>Loading service requests...</p>
-      </div>
-
-      <div id="requestDetails" style="display: none; margin-top: 30px; padding: 20px; background: #2d3e50; border-radius: 8px;">
-        <h4>Request Details</h4>
-        <div id="requestInfo"></div>
-        <h5 style="margin-top: 20px;">Clothing Items</h5>
-        <div id="itemsList"></div>
-        <div id="actions" style="margin-top: 20px;"></div>
-      </div>
+      <table class="services-table" style="width:100%;margin-top:24px;background:#232a34;color:#e0e6ed;border-radius:8px;overflow:hidden;">
+        <thead style="background:#2d3e50;">
+          <tr>
+            <th>Date</th>
+            <th>Service</th>
+            <th>Status</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2025-04-01</td>
+            <td>Wash & Fold</td>
+            <td>Completed</td>
+            <td>P150.00</td>
+          </tr>
+          <tr>
+            <td>2025-03-28</td>
+            <td>Dry Cleaning</td>
+            <td>Completed</td>
+            <td>P220.00</td>
+          </tr>
+          <tr>
+            <td>2025-03-20</td>
+            <td>Ironing</td>
+            <td>Completed</td>
+            <td>P100.00</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </main>
   <footer>
     &copy; 2025 Company Name. All rights reserved.
   </footer>
-  <script>
-    // Load service requests
-    async function loadServiceRequests() {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const token = localStorage.getItem('token');
-      if (!user.userId || !token) {
-        document.getElementById('requestsList').innerHTML = '<p>Please log in to view your service requests.</p>';
-        return;
-      }
-
-      try {
-        const response = await fetch(`http://localhost/api/requests.php?userId=${user.userId}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        const data = await response.json();
-        if (data.success) {
-          const requestsList = document.getElementById('requestsList');
-          requestsList.innerHTML = '';
-
-          if (data.requests.length === 0) {
-            requestsList.innerHTML = '<p>No service requests found.</p>';
-            return;
-          }
-
-          const table = document.createElement('table');
-          table.style.width = '100%';
-          table.style.background = '#232a34';
-          table.style.color = '#e0e6ed';
-          table.style.borderRadius = '8px';
-          table.style.overflow = 'hidden';
-
-          table.innerHTML = `
-            <thead style="background:#2d3e50;">
-              <tr>
-                <th>Request ID</th>
-                <th>Date</th>
-                <th>Service</th>
-                <th>Status</th>
-                <th>Amount</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          `;
-
-          const tbody = table.querySelector('tbody');
-
-          data.requests.forEach(request => {
-            const row = document.createElement('tr');
-            row.style.cursor = 'pointer';
-            row.innerHTML = `
-              <td>${request.RequestID}</td>
-              <td>${new Date(request.CreatedDate).toLocaleDateString()}</td>
-              <td>${request.ServiceName}</td>
-              <td>${request.Status}</td>
-              <td>$${request.TotalAmount}</td>
-              <td>
-                <button onclick="viewRequestDetails(${request.RequestID}); event.stopPropagation();" class="login-btn" style="font-size: 12px; padding: 4px 8px;">View Details</button>
-                ${request.Status === 'Pending' ? `<button onclick="cancelRequest(${request.RequestID}); event.stopPropagation();" class="login-btn" style="font-size: 12px; padding: 4px 8px; background: #f44336;">Cancel</button>` : ''}
-              </td>
-            `;
-            row.addEventListener('click', () => viewRequestDetails(request.RequestID));
-            tbody.appendChild(row);
-          });
-
-          requestsList.appendChild(table);
-        } else {
-          document.getElementById('requestsList').innerHTML = '<p>Error loading service requests.</p>';
-        }
-      } catch (error) {
-        document.getElementById('requestsList').innerHTML = '<p>Error loading service requests.</p>';
-      }
-    }
-
-    // View request details
-    async function viewRequestDetails(requestId) {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('Please log in to view request details');
-        return;
-      }
-
-      try {
-        const response = await fetch(`http://localhost/api/requests.php?id=${requestId}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        const data = await response.json();
-        if (data.success) {
-          const request = data.request;
-          const requestDetails = document.getElementById('requestDetails');
-          const requestInfo = document.getElementById('requestInfo');
-          const itemsList = document.getElementById('itemsList');
-          const actions = document.getElementById('actions');
-
-          requestInfo.innerHTML = `
-            <p><strong>Request ID:</strong> ${request.RequestID}</p>
-            <p><strong>Service:</strong> ${request.ServiceName}</p>
-            <p><strong>Status:</strong> ${request.Status}</p>
-            <p><strong>Total Amount:</strong> $${request.TotalAmount}</p>
-            <p><strong>Scheduled Pickup:</strong> ${request.ScheduledPickupDate ? new Date(request.ScheduledPickupDate).toLocaleString() : 'Not scheduled'}</p>
-            <p><strong>Scheduled Delivery:</strong> ${request.ScheduledDeliveryDate ? new Date(request.ScheduledDeliveryDate).toLocaleString() : 'Not scheduled'}</p>
-            <p><strong>Actual Pickup:</strong> ${request.ActualPickupDate ? new Date(request.ActualPickupDate).toLocaleString() : 'Not yet'}</p>
-            <p><strong>Actual Delivery:</strong> ${request.ActualDeliveryDate ? new Date(request.ActualDeliveryDate).toLocaleString() : 'Not yet'}</p>
-            <p><strong>Special Instructions:</strong> ${request.SpecialInstructions || 'None'}</p>
-            <p><strong>Created:</strong> ${new Date(request.CreatedDate).toLocaleString()}</p>
-          `;
-
-          itemsList.innerHTML = '';
-          if (request.items && request.items.length > 0) {
-            const ul = document.createElement('ul');
-            request.items.forEach(item => {
-              const li = document.createElement('li');
-              li.textContent = `${item.ItemName} - ${item.Color} - Qty: ${item.Quantity}${item.ItemDescription ? ` - ${item.ItemDescription}` : ''}`;
-              ul.appendChild(li);
-            });
-            itemsList.appendChild(ul);
-          } else {
-            itemsList.innerHTML = '<p>No items listed</p>';
-          }
-
-          actions.innerHTML = '';
-          if (request.Status === 'Pending') {
-            actions.innerHTML = `
-              <button onclick="cancelRequest(${request.RequestID})" class="login-btn" style="background: #f44336;">Cancel Request</button>
-            `;
-          }
-
-          requestDetails.style.display = 'block';
-          requestDetails.scrollIntoView({ behavior: 'smooth' });
-        }
-      } catch (error) {
-        alert('Error loading request details');
-      }
-    }
-
-    // Cancel request
-    async function cancelRequest(requestId) {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('Please log in to cancel request');
-        return;
-      }
-
-      if (confirm('Are you sure you want to cancel this request?')) {
-        try {
-          const response = await fetch('http://localhost/api/requests.php', {
-            method: 'DELETE',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id: requestId })
-          });
-          const data = await response.json();
-          if (data.success) {
-            alert('Request cancelled successfully');
-            loadServiceRequests();
-            document.getElementById('requestDetails').style.display = 'none';
-          } else {
-            alert('Error cancelling request: ' + data.message);
-          }
-        } catch (error) {
-          alert('Error cancelling request');
-        }
-      }
-    }
-
-    // Load data on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      loadServiceRequests();
-    });
-  </script>
 </body>
 </html>

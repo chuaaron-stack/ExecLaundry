@@ -1,0 +1,4 @@
+- [x] Rename 'Executive Dry Cleaning & Laundry Services.jpeg' to 'executive-laundry-services.jpg'
+- [x] Update styles.css to use 'executive-laundry-services.jpg' for the background
+- [x] Update login.php inline style to use 'executive-laundry-services.jpg'
+- [x] Test the background image display in PHP files
